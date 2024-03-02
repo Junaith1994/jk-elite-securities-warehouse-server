@@ -14,7 +14,6 @@ app.get('/', (req, res) => {
     res.send("Welcome to Jk Elite Securties Server")
 })
 
-// user: daya2018ctg, pass: 
 // MongoDb Connection string
 const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.yiwwnew.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -45,7 +44,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
-        
+
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
