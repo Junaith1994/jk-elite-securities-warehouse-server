@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
+const { MongoClient, ServerApiVersion } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
-
+// console.log(process.env);
 // Using Middleware
 app.use(cors());
 // body parser
@@ -11,6 +13,46 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.send("Welcome to Jk Elite Securties Server")
 })
+
+// user: daya2018ctg, pass: 
+// MongoDb Connection string
+const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.yiwwnew.mongodb.net/?retryWrites=true&w=majority`;
+
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+});
+
+const mongoClientConnect = async () => {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+}
+mongoClientConnect();
+
+async function run() {
+    try {
+        // All Security products from database
+        const productsCollection = client.db("jk-elite-securities-warehouse").collection("products");
+
+        // Getting all products
+        app.get('/products', async (req, res) => {
+            const query = {};
+            const cursor = productsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+        
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    } finally {
+        // Ensures that the client will close when you finish/error
+        await client.close();
+    }
+}
+run().catch(console.dir);
 
 
 app.listen(port, () => {
