@@ -54,6 +54,21 @@ async function run() {
             res.send(product);
         })
 
+        // Update Quantity
+        app.post('/product/update-qty', async (req, res) => {
+            const updatedQtyValue = req.body.updatedValue;
+            const productId = req.body.productId;
+            console.log(updatedQtyValue, productId);
+            const filter = { _id: new ObjectId(productId) };
+            const updateQty = {
+                $set: {
+                    quantity: updatedQtyValue
+                }
+            }
+            const result = await productsCollection.updateOne(filter, updateQty)
+            res.send(result);
+        })
+
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
