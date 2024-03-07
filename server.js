@@ -54,7 +54,7 @@ async function run() {
             res.send(product);
         })
 
-        // Update Quantity
+        // Update Product Quantity
         app.post('/product/update-qty', async (req, res) => {
             const updatedQtyValue = req.body.updatedValue;
             const productId = req.body.productId;
@@ -66,6 +66,22 @@ async function run() {
                 }
             }
             const result = await productsCollection.updateOne(filter, updateQty)
+            res.send(result);
+        })
+
+        // Add product info
+        app.post('/product/add-product', async (req, res) => {
+            const productInfo = req.body.productInfo;
+            console.log(productInfo);
+            const result = await productsCollection.insertOne(productInfo);
+            res.send(result);
+        })
+
+        // Delete product
+        app.delete('/product/delete/:id', async (req, res) => {
+            const productId = req.params.id;
+            const query = { _id: new ObjectId(productId) };
+            const result = await productsCollection.deleteOne(query);
             res.send(result);
         })
 
