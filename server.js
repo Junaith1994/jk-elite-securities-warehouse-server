@@ -85,6 +85,16 @@ async function run() {
             res.send(result);
         })
 
+        // Getting products by specific Email
+        app.get('/my-items/:email', async (req, res) => {
+            const userEmail = req.params.email;
+            // console.log('userEmail:', userEmail);
+            const query = { createdBy: userEmail };
+            const cursor = productsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
