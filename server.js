@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const moment = require('moment'); // For Date and Time
 const app = express();
 const port = process.env.PORT || 5000;
 // console.log(process.env);
@@ -72,7 +73,13 @@ async function run() {
         // Add product info
         app.post('/product/add-product', async (req, res) => {
             const productInfo = req.body.productInfo;
-            console.log(productInfo);
+            // Date Conversion to get accurate local date and time and set as Date in database
+            const dateString = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
+            const date = new Date(dateString);
+            const offset = date.getTimezoneOffset();
+            const localDate = new Date(date.getTime() + (offset * -60000));
+            // Setting insertion date in database
+            productInfo.date = localDate;
             const result = await productsCollection.insertOne(productInfo);
             res.send(result);
         })
@@ -91,6 +98,20 @@ async function run() {
             // console.log('userEmail:', userEmail);
             const query = { createdBy: userEmail };
             const cursor = productsCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        // Getting Recently Added Products 
+        app.get('/recently-added', async (req, res) => {
+            const last7DaysData = moment().subtract(7, 'days').toDate();
+            const cursor = productsCollection.aggregate([
+                {
+                    $match: {
+                        date: { $gte: last7DaysData }
+                    }
+                }
+            ]);
             const result = await cursor.toArray();
             res.send(result);
         })
