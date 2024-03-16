@@ -57,16 +57,33 @@ async function run() {
 
         // Update Product Quantity
         app.post('/product/update-qty', async (req, res) => {
-            const updatedQtyValue = req.body.updatedValue;
             const productId = req.body.productId;
-            console.log(updatedQtyValue, productId);
+            const updatedQtyValue = req.body.updatedValue;
+            const deliveredValue = req.body.deliveredValue;
+            // console.log(updatedQtyValue, deliveredValue, productId);
             const filter = { _id: new ObjectId(productId) };
-            const updateQty = {
+            const updateDoc = {
                 $set: {
-                    quantity: updatedQtyValue
+                    quantity: updatedQtyValue,
+                    delivered: deliveredValue
+                },
+            }
+            const result = await productsCollection.updateMany(filter, updateDoc, { ignoreUndefined: true });
+            res.send(result);
+        })
+
+        // Clearing Delivered-Quantity Data
+        app.post('/product/clear-delivered', async (req, res) => {
+            const productId = req.body.productId;
+            const deleveredValue = 0;
+            const filter = { _id: new ObjectId(productId) };
+            const updateDoc = {
+                $set: {
+                    delivered: deleveredValue
                 }
             }
-            const result = await productsCollection.updateOne(filter, updateQty)
+
+            const result = await productsCollection.updateOne(filter, updateDoc);
             res.send(result);
         })
 
