@@ -98,7 +98,6 @@ async function run() {
             // Setting insertion date in database
             productInfo.date = localDate;
             productInfo.delivered = 0;
-            // console.log(productInfo);
             const result = await productsCollection.insertOne(productInfo);
             res.send(result);
         })
