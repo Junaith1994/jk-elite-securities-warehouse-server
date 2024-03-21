@@ -97,6 +97,8 @@ async function run() {
             const localDate = new Date(date.getTime() + (offset * -60000));
             // Setting insertion date in database
             productInfo.date = localDate;
+            productInfo.delivered = 0;
+            // console.log(productInfo);
             const result = await productsCollection.insertOne(productInfo);
             res.send(result);
         })
