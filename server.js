@@ -92,18 +92,16 @@ async function run() {
             const productInfo = req.body.productInfo;
             // Date Conversion to get accurate local date and time and set as Date in database
             const dateString = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
-            // const dateTest = moment();
-            const dateUI = new Date();
             const date = new Date(dateString);
             const offset = date.getTimezoneOffset();
             const localDate = new Date(date.getTime() + (offset * -60000));
             // Setting insertion date in database
             productInfo.date = localDate;
             // productInfo.date2 = dateTest;
-            productInfo.date3 = dateUI;
+            // productInfo.date2 = dateDefault;
             // productInfo.date3 = date;
-            console.log(productInfo);
             productInfo.delivered = 0;
+            console.log(productInfo);
             const result = await productsCollection.insertOne(productInfo);
             res.send(result);
         })
