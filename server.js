@@ -91,12 +91,12 @@ async function run() {
         app.post('/product/add-product', async (req, res) => {
             const productInfo = req.body.productInfo;
             // Date Conversion to get accurate local date and time and set as Date in database
-            const dateString = moment().format('YYYY-MM-DDTHH:mm:ss.SSS');
+            const dateString = moment.utc().format('YYYY-MM-DDTHH:mm:ss.SSS');
             const date = new Date(dateString);
-            const offset = date.getTimezoneOffset();
-            const localDate = new Date(date.getTime() + (offset * -60000));
+            // const offset = date.getTimezoneOffset();
+            // const localDate = new Date(date.getTime() + (offset * -60000));
             // Setting insertion date in database
-            productInfo.date = localDate;
+            productInfo.date = date;
             // productInfo.date2 = dateTest;
             // productInfo.date2 = dateDefault;
             // productInfo.date3 = date;
