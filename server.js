@@ -90,8 +90,10 @@ async function run() {
         // Add product info
         app.post('/product/add-product', async (req, res) => {
             const productInfo = req.body.productInfo;
+            productInfo.date = new Date();
             // Adding delevered Qty info into productInfo
             productInfo.delivered = 0;
+            // console.log(productInfo);
             const result = await productsCollection.insertOne(productInfo);
             res.send(result);
         })
