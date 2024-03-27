@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const moment = require('moment'); // For Date and Time
@@ -14,6 +15,36 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.send("Welcome to Jk Elite Securties Server")
 })
+
+// Generating Access Token
+const generateAccessToken = userEmail => {
+    return jwt.sign({ userEmail }, process.env.SECRET_TOKEN, { expiresIn: '1d' });
+}
+
+// Sending Access Token to the requested URL(to the new user)
+app.post('/createNewUser', async (req, res) => {
+    const userEmail = await req.body.email;
+    const token = userEmail && generateAccessToken(userEmail);
+    res.send(token);
+})
+
+// Verify JWT token from client
+function verryfyJwtToken(req, res, next) {
+    const authHeader = req.headers;
+    const token = authHeader && authHeader?.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).send({title: "Unauthorized Access"});
+    }
+
+    jwt.verify(token, process.env.SECRET_TOKEN, (err, user) => {
+        if (err) {
+            return res.status(403).send({title: "Forbidden Access"})
+        }
+        req.user = user;
+        next()
+    })
+}
 
 // MongoDb Connection string
 const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.yiwwnew.mongodb.net/?retryWrites=true&w=majority`;
@@ -39,7 +70,7 @@ async function run() {
         const productsCollection = client.db("jk-elite-securities-warehouse").collection("products");
 
         // Getting all products
-        app.get('/products', async (req, res) => {
+        app.get('/products', verryfyJwtToken, async (req, res) => {
             // console.log('Request from client:', req);
             const query = {};
             const cursor = productsCollection.find(query);
@@ -107,7 +138,7 @@ async function run() {
         })
 
         // Getting products by specific Email
-        app.get('/my-items/:email', async (req, res) => {
+        app.get('/my-items/:email', verryfyJwtToken, async (req, res) => {
             const userEmail = req.params.email;
             // console.log('userEmail:', userEmail);
             const query = { createdBy: userEmail };
