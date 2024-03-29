@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 
 // Generating Access Token
 const generateAccessToken = userEmail => {
-    return jwt.sign({ userEmail }, process.env.SECRET_TOKEN, { expiresIn: '1d' });
+    return jwt.sign({ userEmail }, process.env.SECRET_TOKEN, { expiresIn: '10h' });
 }
 
 // Sending Access Token to the requested URL(to the new user)
@@ -34,12 +34,12 @@ function verryfyJwtToken(req, res, next) {
     const token = authHeader && authHeader?.authorization?.split(' ')[1];
 
     if (!token) {
-        return res.status(401).send({title: "Unauthorized Access"});
+        return res.status(401).send({ title: "Unauthorized Access" });
     }
 
     jwt.verify(token, process.env.SECRET_TOKEN, (err, user) => {
         if (err) {
-            return res.status(403).send({title: "Forbidden Access"})
+            return res.status(403).send({ title: "Forbidden Access" })
         }
         req.user = user;
         next()
@@ -70,7 +70,7 @@ async function run() {
         const productsCollection = client.db("jk-elite-securities-warehouse").collection("products");
 
         // Getting all products
-        app.get('/products', verryfyJwtToken, async (req, res) => {
+        app.get('/products', async (req, res) => {
             // console.log('Request from client:', req);
             const query = {};
             const cursor = productsCollection.find(query);
@@ -140,11 +140,14 @@ async function run() {
         // Getting products by specific Email
         app.get('/my-items/:email', verryfyJwtToken, async (req, res) => {
             const userEmail = req.params.email;
-            // console.log('userEmail:', userEmail);
-            const query = { createdBy: userEmail };
-            const cursor = productsCollection.find(query);
-            const result = await cursor.toArray();
-            res.send(result);
+            const verifiedEmail = req?.user?.userEmail;
+            // console.log('userEmail:', userEmail, 'verifiedEmail:', verifiedEmail);
+            if (userEmail === verifiedEmail) {
+                const query = { createdBy: userEmail };
+                const cursor = productsCollection.find(query);
+                const result = await cursor.toArray();
+                res.send(result);
+            }
         })
 
         // Getting Recently Added Products 
