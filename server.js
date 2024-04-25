@@ -6,7 +6,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const moment = require('moment'); // For Date and Time
 const app = express();
 const port = process.env.PORT || 5000;
-// console.log(process.env);
+
 // Using Middleware
 app.use(cors());
 // body parser
@@ -91,7 +91,6 @@ async function run() {
             const productId = req.body.productId;
             const updatedQtyValue = req.body.updatedValue;
             const deliveredValue = req.body.deliveredValue;
-            // console.log(updatedQtyValue, deliveredValue, productId);
             const filter = { _id: new ObjectId(productId) };
             const updateDoc = {
                 $set: {
@@ -124,7 +123,6 @@ async function run() {
             productInfo.date = new Date();
             // Adding delevered Qty info into productInfo
             productInfo.delivered = 0;
-            // console.log(productInfo);
             const result = await productsCollection.insertOne(productInfo);
             res.send(result);
         })
@@ -141,7 +139,7 @@ async function run() {
         app.get('/my-items/:email', verryfyJwtToken, async (req, res) => {
             const userEmail = req.params.email;
             const verifiedEmail = req?.user?.userEmail;
-            // console.log('userEmail:', userEmail, 'verifiedEmail:', verifiedEmail);
+            
             if (userEmail === verifiedEmail) {
                 const query = { createdBy: userEmail };
                 const cursor = productsCollection.find(query);
@@ -179,6 +177,3 @@ app.listen(port, () => {
 
 // Export the Express API
 module.exports = app;
-
-
-// Note: In package.json > "main": "server.js" might be a problem
